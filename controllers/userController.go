@@ -61,3 +61,56 @@ func (db *UserController) Login(ctx *gin.Context) {
 		Data:       user,
 	})
 }
+
+func (db *UserController) Register(ctx *gin.Context) {
+	user := models.User{}
+	err := ctx.ShouldBindJSON(&user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, userResponse{
+			StatusCode: http.StatusInternalServerError,
+			Status:     "error",
+			Message:    err.Error(),
+		})
+		return
+	}
+
+	checkUsers := db.DB.Table("users").Where("email=?", user.Email).Take(&user).RowsAffected > 0
+	if checkUsers {
+		ctx.JSON(http.StatusConflict, userResponse{
+			StatusCode: http.StatusConflict,
+			Status:     "error",
+			Message:    "Email exist",
+		})
+		return
+	}
+
+	user.Role = "Employees"
+
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, userResponse{
+			StatusCode: http.StatusInternalServerError,
+			Status:     "error",
+			Message:    err.Error(),
+		})
+		return
+	}
+
+	user.Password = string(hashPassword)
+
+	err = db.DB.Table("users").Create(&user).Error
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, userResponse{
+			StatusCode: http.StatusInternalServerError,
+			Status:     "error",
+			Message:    err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, userResponse{
+		StatusCode: http.StatusCreated,
+		Status:     "success",
+		Message:    "Created",
+	})
+}

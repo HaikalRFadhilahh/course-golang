@@ -44,7 +44,9 @@ func main() {
 		c.Redirect(http.StatusMovedPermanently, "https://haik.my.id")
 	})
 
+	// Users Routing
 	router.POST("/users/login", userController.Login)
+	router.POST("/users/register", userController.Register)
 
 	// Running Gin Server
 	fmt.Print("Go Gin Gonic Running in ", connectionString)

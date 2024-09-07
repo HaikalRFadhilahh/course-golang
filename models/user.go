@@ -11,8 +11,8 @@ type User struct {
 	Id        int       `gorm:"type:int;primaryKey;autoIncrement" json:"id"`
 	Role      string    `gorm:"type:varchar(10)" json:"role"`
 	Name      string    `gorm:"type:varchar(255)" json:"name"`
-	Email     string    `gorm:"type:varchar(50)" json:"email"`
-	Password  string    `gorm:"type:varchar(255)" json:"password"`
+	Email     string    `gorm:"type:varchar(50)" json:"email" binding:"required,email"`
+	Password  string    `gorm:"type:varchar(255)" json:"password" binding:"required,min=5"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	Tasks     []Task    `gorm:"constraint:OnDelete:CASCADE" json:"tasks,omitempty"` // Has Many

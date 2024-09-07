@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/HaikalRFadhilahh/course-golang/config"
+	"github.com/HaikalRFadhilahh/course-golang/controllers"
 	"github.com/HaikalRFadhilahh/course-golang/helper"
 	"github.com/HaikalRFadhilahh/course-golang/models"
 	"github.com/gin-gonic/gin"
@@ -31,6 +32,9 @@ func main() {
 	db.AutoMigrate(&models.User{}, &models.Task{})
 	config.CreateOwnerAccount(db)
 
+	// Controller
+	userController := controllers.UserController{DB: db}
+
 	// Router
 	router := gin.Default()
 	// Static Route for Attachment and Public File
@@ -39,6 +43,8 @@ func main() {
 	router.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "https://haik.my.id")
 	})
+
+	router.POST("/users/login", userController.Login)
 
 	// Running Gin Server
 	fmt.Print("Go Gin Gonic Running in ", connectionString)

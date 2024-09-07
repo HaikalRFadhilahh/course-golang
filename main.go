@@ -5,7 +5,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/HaikalRFadhilahh/course-golang/config"
 	"github.com/HaikalRFadhilahh/course-golang/helper"
+	"github.com/HaikalRFadhilahh/course-golang/models"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -24,13 +26,18 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	// Database Connection
+	db, _ := config.DatabaseConnection()
+	db.AutoMigrate(&models.User{}, &models.Task{})
+	config.CreateOwnerAccount(db)
+
 	// Router
 	router := gin.Default()
 	// Static Route for Attachment and Public File
 	router.Static("/public", "./attachments")
 	// API Routing
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "Welcome to Golang App")
+		c.Redirect(http.StatusMovedPermanently, "https://haik.my.id")
 	})
 
 	// Running Gin Server

@@ -47,6 +47,8 @@ func main() {
 	// Users Routing
 	router.POST("/users/login", userController.Login)
 	router.POST("/users/register", userController.Register)
+	router.DELETE("/users/delete", userController.Delete)
+	router.PUT("/users/update", userController.Update)
 
 	// Running Gin Server
 	fmt.Print("Go Gin Gonic Running in ", connectionString)

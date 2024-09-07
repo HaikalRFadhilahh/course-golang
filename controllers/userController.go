@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/HaikalRFadhilahh/course-golang/models"
@@ -24,10 +25,10 @@ func (db *UserController) Login(ctx *gin.Context) {
 	user := models.User{}
 	err := ctx.ShouldBindJSON(&user)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"statusCode": 500,
-			"status":     "error",
-			"message":    err.Error(),
+		ctx.JSON(http.StatusInternalServerError, userResponse{
+			StatusCode: http.StatusInternalServerError,
+			Status:     "error",
+			Message:    err.Error(),
 		})
 		return
 	}
@@ -112,5 +113,101 @@ func (db *UserController) Register(ctx *gin.Context) {
 		StatusCode: http.StatusCreated,
 		Status:     "success",
 		Message:    "Created",
+	})
+}
+
+func (db *UserController) Delete(ctx *gin.Context) {
+	params := ctx.Query("id")
+	if params == "" {
+		ctx.JSON(http.StatusBadRequest, userResponse{
+			StatusCode: http.StatusBadRequest,
+			Status:     "error",
+			Message:    "request not valid",
+		})
+		return
+	}
+
+	var checkUsers int64
+	db.DB.Table("users").Where("id=?", params).Count(&checkUsers)
+	if checkUsers <= 0 {
+		ctx.JSON(http.StatusNotFound, userResponse{
+			StatusCode: http.StatusNotFound,
+			Status:     "error",
+			Message:    "Users not Found",
+		})
+		return
+	}
+
+	db.DB.Table("users").Where("id=?", params).Delete(&models.User{})
+
+	ctx.JSON(http.StatusOK, userResponse{
+		StatusCode: http.StatusOK,
+		Status:     "success",
+		Message:    "Users success Delete!",
+	})
+}
+
+func (db *UserController) Update(ctx *gin.Context) {
+	paramsId := ctx.Query("id")
+	user := models.User{}
+	if paramsId == "" {
+		ctx.JSON(http.StatusBadRequest, userResponse{
+			StatusCode: http.StatusBadRequest,
+			Status:     "error",
+			Message:    "request not valid",
+		})
+		return
+	}
+
+	checkUsers := db.DB.Table("users").Where("id=?", paramsId).First(&user).RowsAffected
+	if checkUsers <= 0 {
+		ctx.JSON(http.StatusNotFound, userResponse{
+			StatusCode: http.StatusNotFound,
+			Status:     "error",
+			Message:    "Users not Found",
+		})
+		return
+	}
+
+	oldValue := user
+
+	ctx.ShouldBindJSON(&user)
+
+	user.Id = oldValue.Id
+	if user.Email != oldValue.Email {
+		var checkEmail int64
+		db.DB.Table("users").Where("email=?", user.Email).Count(&checkEmail)
+		if checkEmail > 0 {
+			ctx.JSON(http.StatusConflict, userResponse{
+				StatusCode: http.StatusConflict,
+				Status:     "error",
+				Message:    "update failed,Email exist",
+			})
+			return
+		}
+	}
+
+	fmt.Println(user.Password)
+	fmt.Println(oldValue.Password)
+	if user.Password != oldValue.Password {
+		hashNewPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, userResponse{
+				StatusCode: http.StatusInternalServerError,
+				Status:     "error",
+				Message:    err.Error(),
+			})
+			return
+		}
+		user.Password = string(hashNewPassword)
+	}
+
+	db.DB.Save(&user)
+
+	ctx.JSON(http.StatusOK, userResponse{
+		StatusCode: http.StatusOK,
+		Status:     "success",
+		Message:    "Users updated!",
+		Data:       user,
 	})
 }

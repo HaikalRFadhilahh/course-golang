@@ -14,10 +14,10 @@ type UserController struct {
 }
 
 type userResponse struct {
-	StatusCode int         `json:StatusCode`
-	Status     string      `json:status`
-	Message    string      `json:message`
-	Data       interface{} `json:data,omitempty`
+	StatusCode int         `json:"statusCode"`
+	Status     string      `json:"status"`
+	Message    string      `json:"message"`
+	Data       interface{} `json:"data,omitempty"`
 }
 
 func (db *UserController) Login(ctx *gin.Context) {

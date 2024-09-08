@@ -8,7 +8,6 @@ import (
 	"github.com/HaikalRFadhilahh/course-golang/config"
 	"github.com/HaikalRFadhilahh/course-golang/controllers"
 	"github.com/HaikalRFadhilahh/course-golang/helper"
-	"github.com/HaikalRFadhilahh/course-golang/middleware"
 	"github.com/HaikalRFadhilahh/course-golang/models"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -50,7 +49,7 @@ func main() {
 	router.POST("/users/register", userController.Register)
 	router.DELETE("/users/delete", userController.Delete)
 	router.PUT("/users/update", userController.Update)
-	router.GET("/users", middleware.CheckAuth(), userController.GetAllUsers)
+	router.GET("/users", userController.GetAllUsers)
 
 	// Running Gin Server
 	fmt.Print("Go Gin Gonic Running in ", connectionString)

@@ -211,3 +211,24 @@ func (db *UserController) Update(ctx *gin.Context) {
 		Data:       user,
 	})
 }
+
+func (db *UserController) GetAllUsers(ctx *gin.Context) {
+	users := []models.User{}
+
+	err := db.DB.Table("users").Select("id,name,email,created_at,updated_at").Find(&users).Error
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, userResponse{
+			StatusCode: http.StatusInternalServerError,
+			Status:     "error",
+			Message:    err.Error(),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, userResponse{
+		StatusCode: http.StatusOK,
+		Status:     "success",
+		Message:    "All Data Users",
+		Data:       users,
+	})
+
+}

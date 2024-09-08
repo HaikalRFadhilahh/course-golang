@@ -35,7 +35,7 @@ func (db *UserController) Login(ctx *gin.Context) {
 
 	password := user.Password
 
-	err = db.DB.Where("email=?", user.Email).Take(&user).Error
+	err = db.DB.Select("id,name,email,password").Where("email=?", user.Email).Take(&user).Error
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"statusCode": 500,
@@ -47,13 +47,30 @@ func (db *UserController) Login(ctx *gin.Context) {
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, map[string]interface{}{
-			"statusCode": 401,
-			"status":     "error",
-			"message":    "Credentials invalid",
+		ctx.JSON(http.StatusUnauthorized, userResponse{
+			StatusCode: http.StatusUnauthorized,
+			Status:     "error",
+			Message:    "Invalid Credentials!",
 		})
 		return
 	}
+
+	// // Generating Token JWT
+	// tokenJWT, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	// 	"id":    user.Id,
+	// 	"name":  user.Name,
+	// 	"email": user.Email,
+	// 	"iat":   time.Now().Unix(),
+	// 	"exp":   time.Now().Add(time.Minute * 5).Unix(),
+	// }).SignedString([]byte(helper.GetEnv("JWT_SECRET", "")))
+	// if err != nil {
+	// 	ctx.JSON(http.StatusInternalServerError, userResponse{
+	// 		StatusCode: http.StatusInternalServerError,
+	// 		Status:     "success",
+	// 		Message:    err.Error(),
+	// 	})
+	// 	return
+	// }
 
 	ctx.JSON(http.StatusOK, userResponse{
 		StatusCode: http.StatusOK,

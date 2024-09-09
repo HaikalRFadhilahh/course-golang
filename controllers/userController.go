@@ -134,7 +134,7 @@ func (db *UserController) Register(ctx *gin.Context) {
 }
 
 func (db *UserController) Delete(ctx *gin.Context) {
-	params := ctx.Query("id")
+	params := ctx.Param("id")
 	if params == "" {
 		ctx.JSON(http.StatusBadRequest, userResponse{
 			StatusCode: http.StatusBadRequest,

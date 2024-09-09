@@ -34,6 +34,7 @@ func main() {
 
 	// Controller
 	userController := controllers.UserController{DB: db}
+	taskController := controllers.TaskController{DB: db}
 
 	// Router
 	router := gin.Default()
@@ -47,9 +48,12 @@ func main() {
 	// Users Routing
 	router.POST("/users/login", userController.Login)
 	router.POST("/users/register", userController.Register)
-	router.DELETE("/users/delete", userController.Delete)
+	router.DELETE("/users/delete/:id", userController.Delete)
 	router.PUT("/users/update", userController.Update)
 	router.GET("/users", userController.GetAllUsers)
+
+	// Task Routing
+	router.POST("/task/create", taskController.Create)
 
 	// Running Gin Server
 	fmt.Print("Go Gin Gonic Running in ", connectionString)

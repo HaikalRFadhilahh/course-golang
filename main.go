@@ -54,6 +54,7 @@ func main() {
 
 	// Task Routing
 	router.POST("/task/create", taskController.Create)
+	router.DELETE("/task/delete/:id", taskController.Delete)
 
 	// Running Gin Server
 	fmt.Print("Go Gin Gonic Running in ", connectionString)
